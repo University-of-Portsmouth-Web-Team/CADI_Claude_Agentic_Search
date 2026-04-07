@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CADI Search</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f1e38; }
+    input::placeholder { color: rgba(136,153,184,0.7); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); opacity: 0.5; }
+      50%       { transform: translateY(-6px); opacity: 1; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+// ============================================================================
+// CONFIGURATION — update these two values before deploying
+// ============================================================================
+
+// 1. Your Cloudflare Worker URL (from worker.js deployment).
+//    The API key lives there — never put it here.
+const PROXY_URL = "https://cadi-search.YOUR-SUBDOMAIN.workers.dev";
+
+// 2. Raw URL to your search-index.json on GitHub.
+//    After running the GitHub Action crawler, grab the raw URL from:
+//    your repo → search-index.json → Raw button → copy URL
+const GITHUB_RAW_INDEX_URL =
+  "https://raw.githubusercontent.com/YOUR-ORG/YOUR-REPO/main/search-index.json";
+
+// ============================================================================
+// PRIORITY PAGES — boosted in results for relevant queries
+// ============================================================================
+const PRIORITY_PAGES = [
+  {
+    url: "https://cadi.port.ac.uk/cpd-support",
+    boost_terms: ["cpd", "professional development", "workshops", "training", "sessions", "timetable"],
+  },
+  {
+    url: "https://cadi.port.ac.uk/fellowship",
+    boost_terms: ["fellowship", "advancehe", "hea", "pgcerthe", "fhea"],
+  },
+];
+
+// ============================================================================
+// EXTERNAL LINKS — surfaced directly when matched by keyword
+// ============================================================================
+const EXTERNAL_LINKS = [
+  {
+    name: "APEX",
+    url: "https://apex.port.ac.uk",
+    description: "Academic Practice Enhancement Platform — direct access",
+    keywords: ["apex", "academic practice enhancement"],
+  },
+  {
+    name: "Moodle (VLE)",
+    url: "https://moodle.port.ac.uk",
+    description: "University Virtual Learning Environment",
+    keywords: ["moodle", "vle"],
+  },
+  {
+    name: "ObserveWell",
+    url: "https://observewell.port.ac.uk",
+    description: "Peer observation recording platform",
+    keywords: ["observewell", "observe well"],
+  },
+];
+
+// ============================================================================
+// EXAMPLE PROMPTS shown below the search box
+// ============================================================================
+const EXAMPLE_PROMPTS = [
+  "How do I get AdvanceHE Fellowship?",
+  "CPD workshops coming up",
+  "Peer observation forms",
+  "Accessible resources for students",
+  "Learning and teaching conference",
+];
+
+// ============================================================================
+// STATIC FALLBACK INDEX
+// Used if the GitHub index cannot be fetched (e.g. CORS, offline).
+// Replace with your own pages or leave as-is for demo purposes.
+// ============================================================================
+const FALLBACK_INDEX = [
+  { id: 1, url: "https://cadi.port.ac.uk/cpd-support", title: "CPD and Support", excerpt: "The main hub for Continuing Professional Development opportunities at the University of Portsmouth.", content: "CPD opportunities including workshops on active blended learning, assessment design, digital tools, AdvanceHE fellowship pathways, PGCertHE, and peer observation schemes. Timetabled sessions throughout the academic year.", type: "page", tags: ["cpd", "professional development", "fellowship", "workshops", "training"], date: "2026-03-01" },
+  { id: 2, url: "https://cadi.port.ac.uk/fellowship", title: "AdvanceHE Fellowship", excerpt: "Routes to achieving Fellowship of AdvanceHE — Associate, Fellow, Senior Fellow, Principal Fellow.", content: "Fellowship pathways: D1 Associate Fellow, D2 Fellow (FHEA), D3 Senior Fellow, D4 Principal Fellow. PGCertHE leads to fellowship. CATE awards. How do I get AdvanceHE fellowship?", type: "page", tags: ["fellowship", "advancehe", "hea", "pgcerthe", "cate"], date: "2026-02-14" },
+  { id: 3, url: "https://cadi.port.ac.uk/cpd-timetable", title: "CPD Timetable", excerpt: "View and book upcoming CPD sessions, workshops and events.", content: "Full CPD timetable: ABL workshops, assessment design, digital tools, fellowship preparation, peer observation, inclusive curriculum. CPD catalogue. CPD calendar.", type: "page", tags: ["cpd", "timetable", "calendar", "workshops", "catalogue"], date: "2026-04-01" },
+  { id: 4, url: "https://cadi.port.ac.uk/peer-observation", title: "Peer Observation", excerpt: "The peer observation scheme supports reflective teaching through collaborative observation.", content: "Peer observation for professional development. ObserveWell platform for recording observations. Observe, reflect, discuss. Observation links to fellowship evidence portfolio.", type: "page", tags: ["peer observation", "observe", "observewell", "teaching practice"], date: "2025-11-01" },
+  { id: 5, url: "https://cadi.port.ac.uk/active-blended-learning", title: "Active Blended Learning (ABL)", excerpt: "The ABL framework underpins curriculum design at the University of Portsmouth.", content: "Active Blended Learning combines online and face-to-face activities. Seven learning types: assimilative, finding and handling information, communicative, productive, experiential, interactive, adaptive.", type: "page", tags: ["active blended learning", "abl", "pedagogy", "curriculum design", "learning types"], date: "2025-09-01" },
+  { id: 6, url: "https://cadi.port.ac.uk/assessment-information-resource", title: "Assessment Information Resource (AIR)", excerpt: "Guidance on assessment design, authentic assessment, categorical marking and reasonable adjustments.", content: "Authentic assessment design, categorical marking guidance, reasonable adjustments, assessment choice, learning outcomes alignment.", type: "resource", tags: ["assessment", "air", "authentic assessment", "categorical marking", "reasonable adjustments"], date: "2026-01-10" },
+  { id: 7, url: "https://cadi.port.ac.uk/enable", title: "enABLe — Inclusive Curriculum", excerpt: "enABLe supports inclusive curriculum design and accessible learning resources.", content: "Inclusive curriculum design, accessible resources, accessibility guidelines, Universal Design for Learning (UDL), reasonable adjustments.", type: "page", tags: ["enable", "accessibility", "inclusive curriculum", "accessible resources"], date: "2025-10-15" },
+  { id: 8, url: "https://cadi.port.ac.uk/learning-teaching-conference-2026", title: "Learning and Teaching Conference 2026", excerpt: "Annual conference showcasing innovative teaching practice. Call for papers now open.", content: "2026 Learning and Teaching Conference. Call for papers open. Theme: Connected Curriculum.", type: "event", tags: ["conference", "learning and teaching", "call for papers", "ltc2026"], date: "2026-06-15" },
+  { id: 9, url: "https://cadi.port.ac.uk/panopto", title: "Panopto — Video Capture", excerpt: "Panopto is the University's video capture and streaming platform.", content: "Panopto: lecture recording, screen capture, Smart Capture, video streaming. Integrated with Moodle.", type: "resource", tags: ["panopto", "video", "smart capture", "lecture recording"], date: "2026-02-01" },
+  { id: 10, url: "https://cadi.port.ac.uk/connected-curriculum", title: "Connected Curriculum", excerpt: "The Connected Curriculum framework connects learning across six dimensions.", content: "Connected Curriculum: connects with research, progression, research community, wider world, each other across disciplines. Guidance on connected curriculum design.", type: "page", tags: ["connected curriculum", "curriculum design", "research", "blended and connected"], date: "2025-08-01" },
+];
+
+// ============================================================================
+// STYLING CONSTANTS
+// ============================================================================
+const COLORS = {
+  navy:      "#1b2a4a",
+  navyDark:  "#0f1e38",
+  gold:      "#c9a84c",
+  text:      "#f0f4fa",
+  subtext:   "#aab8d0",
+  muted:     "#8899b8",
+  border:    "rgba(255,255,255,0.1)",
+  card:      "rgba(255,255,255,0.04)",
+  cardHover: "rgba(255,255,255,0.07)",
+};
+
+const TYPE_CONFIG = {
+  page:     { bg: "#E8F0FE", text: "#1557B0", label: "Page" },
+  event:    { bg: "#FEF3E2", text: "#B45309", label: "Event" },
+  resource: { bg: "#DCFCE7", text: "#166534", label: "Resource" },
+  guide:    { bg: "#F3E8FF", text: "#6B21A8", label: "Guide" },
+};
+
+// ============================================================================
+// APP COMPONENT
+// ============================================================================
+const { useState, useCallback, useEffect, useRef } = React;
+
+function App() {
+  const [query, setQuery]         = useState("");
+  const [results, setResults]     = useState(null);
+  const [loading, setLoading]     = useState(false);
+  const [indexing, setIndexing]   = useState(true);
+  const [error, setError]         = useState(null);
+  const [submitted, setSubmitted] = useState("");
+  const [pageIndex, setPageIndex] = useState(FALLBACK_INDEX);
+  const inputRef = useRef(null);
+
+  // Try to fetch the live GitHub index on mount
+  useEffect(() => {
+    if (GITHUB_RAW_INDEX_URL.includes("YOUR-ORG")) {
+      setIndexing(false); // using fallback demo index
+      return;
+    }
+    fetch(GITHUB_RAW_INDEX_URL)
+      .then(r => r.json())
+      .then(data => {
+        if (data.pages && data.pages.length > 0) {
+          setPageIndex(data.pages);
+        }
+      })
+      .catch(() => { /* silently use fallback */ })
+      .finally(() => setIndexing(false));
+  }, []);
+
+  const runSearch = useCallback(async (q) => {
+    const trimmed = q.trim();
+    if (!trimmed || loading) return;
+    setLoading(true);
+    setError(null);
+    setResults(null);
+    setSubmitted(trimmed);
+
+    const systemPrompt = `You are an intelligent search agent for the CADI (Centre for Academic and Digital Innovation) website at the University of Portsmouth.
+
+Given a staff member's search query, analyse the provided content index and return the most relevant results.
+
+RULES:
+- Understand intent: "cpd timetable" means they want the schedule of upcoming CPD sessions
+- Expand abbreviations: ABL = Active Blended Learning, AIR = Assessment Information Resource, APEX = Academic Practice Enhancement, HEA = Higher Education Academy, etc.
+- Prioritise the CPD and Support page for general CPD/professional development queries
+- Consider partial matches, synonyms, and common misspellings
+- Return 3–5 results, only those with relevance_score >= 35
+- Note content gaps honestly when a topic has no coverage
+
+Respond ONLY with valid JSON — no preamble, no markdown fences:
+{
+  "reasoning": "1–2 sentence explanation of how you interpreted this query",
+  "results": [
+    { "id": <number>, "relevance_score": <0–100>, "relevance_reason": "Why this matches (max 12 words)" }
+  ],
+  "content_gap": "Description of missing content if any, otherwise null",
+  "suggestions": ["alternative query 1", "alternative query 2"]
+}`;
+
+    try {
+      const endpoint = PROXY_URL.includes("YOUR-SUBDOMAIN")
+        ? "https://api.anthropic.com/v1/messages"   // demo fallback (will fail without key — expected)
+        : PROXY_URL;
+
+      const resp = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: [{
+            role: "user",
+            content: `Search query: "${trimmed}"\n\nContent index:\n${JSON.stringify(
+              pageIndex.map(p => ({
+                id: p.id, title: p.title, excerpt: p.excerpt,
+                content: (p.content || "").slice(0, 400),
+                type: p.type, tags: p.tags, date: p.date,
+              })), null, 2
+            )}`,
+          }],
+        }),
+      });
+
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error.message || "API error");
+
+      const raw   = (data.content || []).find(b => b.type === "text")?.text || "{}";
+      const clean = raw.replace(/```json|```/g, "").trim();
+      const parsed = JSON.parse(clean);
+
+      const enriched = (parsed.results || [])
+        .map(r => ({ ...pageIndex.find(p => p.id === r.id), ...r }))
+        .filter(r => r.url)
+        .sort((a, b) => b.relevance_score - a.relevance_score);
+
+      const lq = trimmed.toLowerCase();
+      const externalMatches = EXTERNAL_LINKS.filter(el =>
+        el.keywords.some(k => lq.includes(k))
+      );
+
+      setResults({ ...parsed, results: enriched, externalMatches });
+    } catch (e) {
+      setError(
+        PROXY_URL.includes("YOUR-SUBDOMAIN")
+          ? "Demo mode: set PROXY_URL in index.html to your Cloudflare Worker URL to enable live search."
+          : (e.message || "Search failed — please try again.")
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [pageIndex, loading]);
+
+  const handleKeyDown = (e) => { if (e.key === "Enter") runSearch(query); };
+  const handleClear   = () => { setResults(null); setQuery(""); setSubmitted(""); inputRef.current?.focus(); };
+
+  // ── Render ──────────────────────────────────────────────────────────────
+
+  return (
+    <div style={{ fontFamily: "'DM Sans', system-ui, sans-serif", background: `linear-gradient(160deg, ${COLORS.navyDark} 0%, ${COLORS.navy} 50%, #0d1929 100%)`, minHeight: "100vh", color: COLORS.text }}>
+
+      {/* ── Header ── */}
+      <header style={{ background: "rgba(255,255,255,0.04)", borderBottom: `1px solid rgba(201,168,76,0.25)`, padding: "14px 32px", display: "flex", alignItems: "center", gap: 12 }}>
+        <div>
+          <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 20, color: COLORS.gold, letterSpacing: 1 }}>CADI</div>
+          <div style={{ fontSize: 10, color: COLORS.muted, letterSpacing: 2, textTransform: "uppercase", marginTop: -2 }}>Centre for Academic &amp; Digital Innovation</div>
+        </div>
+        <div style={{ width: 1, height: 36, background: "rgba(201,168,76,0.3)", margin: "0 12px" }} />
+        <span style={{ fontSize: 13, color: COLORS.muted, letterSpacing: 1.5, textTransform: "uppercase" }}>Agentic Search</span>
+        <div style={{ marginLeft: "auto", fontSize: 11, background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 12, padding: "3px 12px", color: COLORS.gold, letterSpacing: 1 }}>
+          Powered by Claude
+        </div>
+      </header>
+
+      {/* ── Main ── */}
+      <main style={{ padding: "48px 32px 64px", maxWidth: 820, margin: "0 auto" }}>
+
+        {/* Hero */}
+        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "clamp(28px,4vw,44px)", fontWeight: 400, color: COLORS.text, margin: "0 0 8px", lineHeight: 1.2 }}>
+          Find what you<br /><em style={{ color: COLORS.gold }}>need to know</em>
+        </h1>
+        <p style={{ fontSize: 15, color: COLORS.muted, margin: "0 0 28px" }}>
+          AI-powered search across CADI resources, CPD, events and tools
+          {!GITHUB_RAW_INDEX_URL.includes("YOUR-ORG") && !indexing && (
+            <span style={{ marginLeft: 8, fontSize: 12, color: "#4ade80" }}>
+              ● Live index ({pageIndex.length} pages)
+            </span>
+          )}
+          {GITHUB_RAW_INDEX_URL.includes("YOUR-ORG") && (
+            <span style={{ marginLeft: 8, fontSize: 12, color: COLORS.gold }}>
+              ● Demo index
+            </span>
+          )}
+        </p>
+
+        {/* Search input */}
+        <div style={{ position: "relative", marginBottom: 16 }}>
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Try: fellowship, CPD timetable, peer observation…"
+            style={{ width: "100%", padding: "18px 64px 18px 22px", fontSize: 17, borderRadius: 14, background: "rgba(255,255,255,0.07)", border: `1.5px solid rgba(201,168,76,0.3)`, color: COLORS.text, outline: "none", transition: "border-color 0.2s" }}
+            onFocus={e => e.target.style.borderColor = COLORS.gold}
+            onBlur={e => e.target.style.borderColor = "rgba(201,168,76,0.3)"}
+          />
+          <button
+            onClick={() => runSearch(query)}
+            disabled={loading || indexing}
+            style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: (loading || indexing) ? "rgba(201,168,76,0.4)" : COLORS.gold, border: "none", borderRadius: 10, padding: "10px 14px", cursor: (loading || indexing) ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            {loading ? (
+              <span style={{ display: "inline-block", width: 18, height: 18, border: `2px solid ${COLORS.navy}`, borderTopColor: "transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={COLORS.navy} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {/* Example prompts */}
+        {!results && !loading && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {EXAMPLE_PROMPTS.map(q => (
+              <button key={q} onClick={() => { setQuery(q); runSearch(q); }}
+                style={{ background: "rgba(255,255,255,0.05)", border: `1px solid rgba(255,255,255,0.12)`, borderRadius: 20, padding: "6px 14px", fontSize: 13, color: COLORS.muted, cursor: "pointer", transition: "all 0.15s" }}
+                onMouseEnter={e => { e.target.style.background = "rgba(201,168,76,0.15)"; e.target.style.borderColor = "rgba(201,168,76,0.4)"; e.target.style.color = COLORS.gold; }}
+                onMouseLeave={e => { e.target.style.background = "rgba(255,255,255,0.05)"; e.target.style.borderColor = "rgba(255,255,255,0.12)"; e.target.style.color = COLORS.muted; }}
+              >{q}</button>
+            ))}
+          </div>
+        )}
+
+        {/* Loading dots */}
+        {loading && (
+          <div style={{ marginTop: 40, textAlign: "center" }}>
+            <div style={{ fontSize: 13, color: COLORS.muted, letterSpacing: 1, marginBottom: 12 }}>Searching across {pageIndex.length} pages…</div>
+            <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+              {[0,1,2].map(i => (
+                <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS.gold, animation: `bounce 1s ease-in-out ${i*0.15}s infinite` }} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Error */}
+        {error && !loading && (
+          <div style={{ marginTop: 24, padding: "16px 20px", background: "rgba(220,38,38,0.1)", border: "1px solid rgba(220,38,38,0.3)", borderRadius: 10, color: "#fca5a5", fontSize: 14 }}>
+            ⚠ {error}
+          </div>
+        )}
+
+        {/* Results */}
+        {results && !loading && (
+          <div style={{ marginTop: 32, animation: "fadeIn 0.3s ease" }}>
+
+            {/* Meta bar */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <div>
+                <span style={{ fontSize: 13, color: COLORS.muted }}>Results for </span>
+                <span style={{ fontSize: 13, color: COLORS.gold, fontWeight: 600 }}>"{submitted}"</span>
+                <span style={{ fontSize: 13, color: COLORS.muted }}> — {results.results.length} match{results.results.length !== 1 ? "es" : ""}</span>
+              </div>
+              <button onClick={handleClear} style={{ fontSize: 12, color: COLORS.muted, background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}>Clear</button>
+            </div>
+
+            {/* AI reasoning */}
+            {results.reasoning && (
+              <div style={{ marginBottom: 20, padding: "12px 16px", background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.2)", borderRadius: 10, display: "flex", gap: 10 }}>
+                <span style={{ fontSize: 16, color: COLORS.gold }}>✦</span>
+                <div>
+                  <div style={{ fontSize: 11, color: COLORS.gold, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>AI Interpretation</div>
+                  <div style={{ fontSize: 13, color: "#c4cedc", lineHeight: 1.5 }}>{results.reasoning}</div>
+                </div>
+              </div>
+            )}
+
+            {/* External links */}
+            {results.externalMatches?.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 11, color: COLORS.muted, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8 }}>Direct Link</div>
+                {results.externalMatches.map(el => (
+                  <a key={el.url} href={el.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", display: "block" }}>
+                    <div style={{ padding: "14px 18px", background: COLORS.card, border: `1px solid rgba(255,255,255,0.15)`, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "space-between" }}
+                      onMouseEnter={e => e.currentTarget.style.borderColor = COLORS.gold}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 600, color: COLORS.text, fontSize: 15 }}>↗ {el.name}</div>
+                        <div style={{ fontSize: 13, color: COLORS.muted, marginTop: 2 }}>{el.description}</div>
+                      </div>
+                      <div style={{ fontSize: 12, color: COLORS.muted }}>{el.url.replace("https://","")}</div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
+
+            {/* No results */}
+            {results.results.length === 0 && (
+              <div style={{ padding: 32, textAlign: "center", color: COLORS.muted, fontSize: 15 }}>
+                No strong matches found for this query.
+              </div>
+            )}
+
+            {/* Result cards */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {results.results.map((r, idx) => {
+                const tc = TYPE_CONFIG[r.type] || TYPE_CONFIG.page;
+                const score = r.relevance_score;
+                const scoreColor = score >= 80 ? "#4ade80" : score >= 60 ? "#60a5fa" : COLORS.muted;
+                return (
+                  <a key={r.id} href={r.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                    <div style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: 12, padding: "18px 20px", display: "flex", gap: 16, transition: "all 0.18s" }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(201,168,76,0.4)"; e.currentTarget.style.background = COLORS.cardHover; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = COLORS.border; e.currentTarget.style.background = COLORS.card; }}
+                    >
+                      <div style={{ fontSize: 13, color: "#4a6080", fontWeight: 700, minWidth: 20, paddingTop: 2 }}>{idx + 1}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+                          <span style={{ fontWeight: 600, fontSize: 16, color: COLORS.text }}>{r.title}</span>
+                          <span style={{ fontSize: 11, padding: "2px 9px", borderRadius: 10, background: tc.bg, color: tc.text, fontWeight: 600 }}>{tc.label}</span>
+                          {r.date && <span style={{ fontSize: 11, color: COLORS.muted }}>{new Date(r.date).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</span>}
+                        </div>
+                        <div style={{ fontSize: 14, color: COLORS.subtext, lineHeight: 1.5, marginBottom: 8 }}>{r.excerpt}</div>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 6 }}>
+                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                            {(r.tags || []).slice(0, 4).map(t => (
+                              <span key={t} style={{ fontSize: 11, padding: "2px 8px", borderRadius: 8, background: "rgba(255,255,255,0.06)", color: "#7a90a8" }}>{t}</span>
+                            ))}
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <span style={{ fontSize: 11, color: COLORS.muted, fontStyle: "italic" }}>{r.relevance_reason}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: scoreColor }}>{score}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+
+            {/* Content gap */}
+            {results.content_gap && (
+              <div style={{ marginTop: 20, padding: "14px 18px", background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: 10 }}>
+                <div style={{ fontSize: 11, color: "#a855f7", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 4 }}>Content Gap Detected</div>
+                <div style={{ fontSize: 13, color: "#c4cedc" }}>{results.content_gap}</div>
+              </div>
+            )}
+
+            {/* Suggestions */}
+            {results.suggestions?.length > 0 && (
+              <div style={{ marginTop: 16 }}>
+                <span style={{ fontSize: 12, color: COLORS.muted }}>Try also: </span>
+                {results.suggestions.map(s => (
+                  <button key={s} onClick={() => { setQuery(s); runSearch(s); }}
+                    style={{ background: "none", border: "none", color: COLORS.gold, fontSize: 13, cursor: "pointer", textDecoration: "underline", marginRight: 8 }}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
+
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
