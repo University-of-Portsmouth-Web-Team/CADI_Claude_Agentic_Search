@@ -1,0 +1,88 @@
+name: Crawl and Index Website
+
+on:
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly, Sunday at 2am UTC
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Root URL to crawl (e.g. https://cadi.port.ac.uk)'
+        required: true
+        default: 'https://cadi.port.ac.uk'
+      max_pages:
+        description: 'Maximum number of pages to crawl'
+        required: false
+        default: '300'
+      stay_on_domain:
+        description: 'Only crawl pages on the same domain (true/false)'
+        required: false
+        default: 'true'
+
+env:
+  TARGET_URL: ${{ github.event.inputs.target_url || 'https://cadi.port.ac.uk' }}
+  MAX_PAGES: ${{ github.event.inputs.max_pages || '300' }}
+  STAY_ON_DOMAIN: ${{ github.event.inputs.stay_on_domain || 'true' }}
+
+jobs:
+  crawl-and-index:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-crawler
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install crawler dependencies
+        run: |
+          pip install --upgrade pip
+          pip install requests beautifulsoup4 lxml
+
+      - name: Run site crawler
+        run: |
+          python scripts/crawl.py \
+            --url "$TARGET_URL" \
+            --max-pages "$MAX_PAGES" \
+            --stay-on-domain "$STAY_ON_DOMAIN" \
+            --output search-index.json
+
+      - name: Validate output
+        run: |
+          python -c "
+          import json, sys
+          with open('search-index.json') as f:
+              data = json.load(f)
+          pages = data.get('pages', [])
+          print(f'Index validated: {len(pages)} pages indexed')
+          print(f'Generated at: {data.get(\"generated_at\", \"unknown\")}')
+          if len(pages) == 0:
+              print('WARNING: No pages indexed — check crawler output')
+              sys.exit(1)
+          "
+
+      - name: Commit updated index
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add search-index.json
+          if git diff --staged --quiet; then
+            echo "No changes to index — skipping commit"
+          else
+            PAGE_COUNT=$(python -c "import json; d=json.load(open('search-index.json')); print(len(d['pages']))")
+            git commit -m "chore: update search index — ${PAGE_COUNT} pages ($(date -u +'%Y-%m-%d %H:%M UTC'))"
+            git push
+            echo "Index committed and pushed successfully"
+          fi
