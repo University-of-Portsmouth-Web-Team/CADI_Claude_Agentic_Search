@@ -1,1 +1,1 @@
-Go to /supported_docs for full setup
+TECH-519
