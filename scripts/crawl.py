@@ -27,17 +27,38 @@ HEADERS = {
 REQUEST_TIMEOUT = 15
 CRAWL_DELAY = 0.5  # seconds between requests — be polite
 
-# Tags/classes that typically hold main content (adjust per CMS)
+# Primary container — crawler finds the first match and extracts all text within it.
+# Order matters: more specific selectors first.
 CONTENT_SELECTORS = [
-    "main", "article", ".main-content", ".field--name-body",
-    ".node__content", "#content", ".content", "[role='main']"
+    ".node__content",           # Drupal: wraps all paragraph components
+    ".main-content",            # Drupal: fallback content wrapper
+    ".field--name-body",        # Drupal: classic body field
+    ".field--name-field-text",  # Drupal: paragraph text field
+    "main",
+    "[role='main']",
+    "#content",
+    ".content",
+    "article",
 ]
 
-# Tags to strip from extracted text
+# Tags/selectors to strip before text extraction (navigation chrome, UI noise)
 NOISE_TAGS = [
     "script", "style", "nav", "header", "footer",
     "aside", ".sidebar", "#sidebar", ".navigation",
-    ".breadcrumb", ".cookie-notice", ".search-block"
+    ".breadcrumb", ".cookie-notice", ".search-block",
+    ".search-container", ".header__nav-toggle--mobile",
+    ".hero",  # hero images — no useful text content
+    "svg",    # icon SVGs embedded in accordion buttons
+]
+
+# CADI-specific component selectors whose text is extracted and appended
+# to the main content, ensuring nothing is missed even if nested oddly.
+SUPPLEMENTAL_SELECTORS = [
+    (".signpost__text",           "signpost"),
+    (".quote__text",              "quote"),
+    (".accordion-item__content",  "accordion-content"),
+    (".accordion-item__title span", "accordion-title"),
+    (".header__page-title",       "page-title"),
 ]
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -66,21 +87,53 @@ def is_crawlable(url: str, base_domain: str, stay_on_domain: bool) -> bool:
 
 def extract_text(soup: BeautifulSoup) -> str:
     """Pull meaningful text from a page, stripping noise."""
+    # Work on a copy so we do not mutate the soup used elsewhere
+    soup = BeautifulSoup(str(soup), "lxml")
+
     for selector in NOISE_TAGS:
         for el in soup.select(selector):
             el.decompose()
 
-    # Try to find the main content area first
+    parts = []
+
+    # 1. Pull the page <h1> from the header — sits outside node__content on CADI
+    for selector, _ in SUPPLEMENTAL_SELECTORS:
+        if selector == ".header__page-title":
+            for el in soup.select(selector):
+                text = el.get_text(separator=" ", strip=True)
+                if text:
+                    parts.append(text)
+
+    # 2. Main content area
+    main_text = ""
     for selector in CONTENT_SELECTORS:
         main = soup.select_one(selector)
         if main:
-            return " ".join(main.get_text(separator=" ", strip=True).split())
+            main_text = " ".join(main.get_text(separator=" ", strip=True).split())
+            break
 
-    # Fall back to body
-    body = soup.find("body")
-    if body:
-        return " ".join(body.get_text(separator=" ", strip=True).split())
-    return ""
+    if not main_text:
+        body = soup.find("body")
+        if body:
+            main_text = " ".join(body.get_text(separator=" ", strip=True).split())
+
+    if main_text:
+        parts.append(main_text)
+
+    # 3. Supplemental components — signposts, quotes, accordions
+    #    These are usually inside node__content already, but explicitly
+    #    selecting them ensures nothing is missed on unusual page layouts.
+    seen = set()
+    for selector, label in SUPPLEMENTAL_SELECTORS:
+        if selector == ".header__page-title":
+            continue  # already handled above
+        for el in soup.select(selector):
+            text = " ".join(el.get_text(separator=" ", strip=True).split())
+            if text and text not in seen:
+                seen.add(text)
+                parts.append(text)
+
+    return " ".join(parts)
 
 
 def extract_meta(soup: BeautifulSoup) -> dict:
