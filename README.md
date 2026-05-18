@@ -32,15 +32,17 @@ Staff member types a query
         ↓
 index.html (browser)
   — fetches search-index.json from GitHub (live page data)
-  — sends query + page index to Cloudflare Worker
+  — scores the index locally against the query
+  — sends query + top 20 most relevant pages to Cloudflare Worker
         ↓
 Cloudflare Worker (API proxy)
   — holds the Anthropic API key securely
   — forwards the request to Claude
         ↓
 Claude (claude-sonnet-4-20250514)
-  — reads the query and the full page index
+  — reads the query and the focused page index
   — returns ranked results with relevance scores and reasoning
+  — if no relevant pages were found, says so clearly
         ↓
 index.html renders results to the user
 ```
@@ -95,9 +97,9 @@ const PRIORITY_PAGES = [
 ];
 ```
 
-> **Note:** Priority pages are passed to Claude in the system prompt. Claude may or may not honour them depending on the query; they are a nudge, not a hard override.
+> **Note:** Priority pages are passed to Claude in the system prompt as a nudge, not a hard override. Claude may not always honour them depending on the query.
 
-**`EXTERNAL_LINKS`** — a list of external tools (e.g. APEX, Moodle, ObserveWell) that are surfaced directly above the AI results when a user's query matches their keywords. These bypass Claude entirely — the match is done locally in the browser using simple string matching.
+**`EXTERNAL_LINKS`** — a list of external tools (e.g. APEX, Moodle, ObserveWell) that are surfaced directly above the AI results when a user's query matches their keywords. These bypass Claude entirely — matching is done locally in the browser using simple string matching.
 
 ```js
 const EXTERNAL_LINKS = [
@@ -115,16 +117,34 @@ const EXTERNAL_LINKS = [
 
 **`FALLBACK_INDEX`** — a small hardcoded array of pages used if the live `search-index.json` cannot be fetched (e.g. CORS error, network issue, or the GitHub URL is not yet configured). Keep this reasonably up to date with the most important pages, but it is a safety net, not the primary index.
 
-**`COLORS` / `TYPE_CONFIG`** — see [Section 10 (Branding)](#10-branding-and-design).
-
 ### How a search works (step by step)
 
 1. The user types a query and presses Enter or clicks the search button.
-2. The browser POSTs to the Cloudflare Worker URL with a JSON body containing the Claude model, a system prompt, and the user's query alongside the full page index.
-3. The Worker adds the `x-api-key` header (Anthropic API key) and forwards the request to `api.anthropic.com/v1/messages`.
-4. Claude reads the system prompt (which instructs it to return structured JSON only) and the user content (query + page index).
-5. Claude returns a JSON object with: `reasoning`, `results` (ranked array of page IDs with scores), `content_gap`, and `suggestions`.
+2. The browser scores the full index locally against the query (see [Relevance scoring](#relevance-scoring) below) and selects the top 20 most relevant pages.
+3. The browser POSTs to the Cloudflare Worker URL with a JSON body containing the Claude model, a system prompt, and the user's query alongside only the scored pages.
+4. The Worker adds the `x-api-key` header (Anthropic API key) and forwards the request to `api.anthropic.com/v1/messages`.
+5. Claude reads the system prompt and the user content (query + scored pages), then returns a JSON object with: `reasoning`, `results` (ranked array of page IDs with scores), `content_gap`, and `suggestions`.
 6. The browser matches the result IDs back to full page records from the index, sorts by `relevance_score`, and renders the cards.
+
+### Relevance scoring
+
+Before every API call, two functions filter the index down to the most relevant pages for the query:
+
+**`getCorePages(index)`** — detects the homepage, contact page, and about page by URL pattern (no hardcoded IDs). The homepage is identified by a path of `/` or empty; contact and about are found by `/contact` and `/about` in the URL. These three pages are always included in the index sent to Claude regardless of their relevance score.
+
+**`scorePages(index, query, topN = 20)`** — scores every page against the query across four fields with weighted points:
+
+| Field | Points per matching word |
+|---|---|
+| Title | 10 |
+| Tags | 8 |
+| Tag string (multi-word tags) | 5 |
+| Excerpt | 4 |
+| Content (first 600 chars) | 2 |
+
+Matching uses a fuzzy comparator that handles misspellings and partial words — for example `felowship` matches `fellowship`, and `timetab;e` matches `timetable`. Pages are sorted by descending score and the top 20 are returned. Core pages (homepage, contact, about) are appended if not already in the top 20.
+
+`scorePages` returns `{ pages, maxScore }`. When `maxScore` is 0 — meaning no page scored any points — an additional instruction is injected into the Claude system prompt telling it to acknowledge that no strong match was found and to suggest the user tries a different search term or contacts the team.
 
 ### The Claude system prompt
 
@@ -133,7 +153,8 @@ The system prompt is defined inline in the `runSearch` function. It instructs Cl
 - Understand intent rather than doing literal keyword matching
 - Expand common abbreviations (ABL, AIR, APEX, HEA, etc.)
 - Return only results with a relevance score of 35 or above
-- Honestly flag when a topic has no coverage in the index (content gap)
+- Honestly flag when a topic has no coverage in the index
+- When `maxScore === 0`, say so honestly rather than returning unrelated results
 - Respond exclusively in valid JSON with no preamble or markdown fences
 
 To change the AI's behaviour, edit the `systemPrompt` string inside `runSearch`.
@@ -190,7 +211,7 @@ If the CADI Drupal site is ever restructured, the selectors may need updating:
 
 ## 5. The search index (search-index.json)
 
-This file is committed to the repository and served as a raw GitHub file. It is fetched by the browser on every page load. The file has the following structure:
+This file is committed to the repository and served as a raw GitHub file. It is fetched by the browser on every page load and scored locally. Only the top 20 scored pages are passed to Claude per search.
 
 ```json
 {
@@ -203,7 +224,7 @@ This file is committed to the repository and served as a raw GitHub file. It is 
       "url": "https://cadi.port.ac.uk/cpd-support",
       "title": "CPD and Support | CADI",
       "excerpt": "First 300 characters of extracted text…",
-      "content": "First 1500 characters of extracted text (sent to Claude)",
+      "content": "First 1500 characters of extracted text (used for scoring and sent to Claude)",
       "type": "page",
       "tags": ["cpd", "workshops"],
       "date": "2026-03-01",
@@ -217,9 +238,15 @@ This file is committed to the repository and served as a raw GitHub file. It is 
 }
 ```
 
-**Important:** Only the first 400 characters of `content` are sent to Claude per page (truncated in `index.html` before the API call) to stay within token limits while still giving Claude enough signal to rank results accurately. The `excerpt` field is used for display only and is never sent to the API.
-
 **Do not edit this file by hand.** It is overwritten entirely on every crawler run.
+
+### Token usage
+
+Because only the top 20 scored pages are passed to Claude, token usage per request is approximately 3,000–5,000 tokens regardless of how large the index grows. This is a ~90% reduction compared to sending the full index, and keeps requests well within the Cloudflare Worker's limits.
+
+For reference: a 182-page index sent in full produces approximately 42,000 input tokens. With scoring, a typical query produces approximately 3,500 input tokens.
+
+The per-page `content` field is additionally truncated to 400 characters inside `runSearch` before being passed to Claude. The `excerpt` field is used for display only and is never sent to the API.
 
 ---
 
@@ -276,16 +303,8 @@ API keys must never be exposed in client-side JavaScript — they would be visib
 ### What the Worker does
 
 ```
-Browser POST → Worker → adds x-api-key → Anthropic API → streams response back
+Browser POST → Worker → adds x-api-key → Anthropic API → response back to browser
 ```
-
-The Worker should:
-1. Accept a POST request with a JSON body (the same body the browser sends)
-2. Add the `Authorization` header with the Anthropic API key
-3. Add the `anthropic-version` header
-4. Forward the request to `https://api.anthropic.com/v1/messages`
-5. Stream the response back to the browser
-6. Return appropriate CORS headers so the browser can read the response
 
 ### Recreating the Worker
 
@@ -439,7 +458,7 @@ All colours are defined as CSS custom properties on `:root` in the `<style>` blo
 | `--off-white` | Off White | `#FAFAFA` |
 | `--white` | White | `#FFFFFF` |
 
-The page background is a gradient from Dark Purple → Light Purple → Dark Purple. The Light Blue (`#00A0FF`) is used as the primary interactive/accent colour (search button, focus states, AI reasoning box, hover glows). The Dark Blue (`#0078B4`) is used as the button gradient endpoint.
+The page background is a gradient from Dark Purple → Light Purple → Dark Purple. Light Blue (`#00A0FF`) is used as the primary interactive and accent colour (search button, focus states, AI reasoning box, hover glows). Dark Blue (`#0078B4`) is used as the button gradient endpoint.
 
 ### Typography
 
@@ -452,7 +471,7 @@ The primary brand font (Aero) is a licensed typeface not available on Google Fon
 
 ### Result type badges
 
-Each page in the index has a `type` field (`page`, `event`, `resource`, `guide`). These are mapped to badge colours in the `TYPE_CONFIG` object. The colours use semi-transparent purple and blue tones from the brand palette:
+Each page in the index has a `type` field (`page`, `event`, `resource`, `guide`). These are mapped to badge colours in the `TYPE_CONFIG` object using semi-transparent purple and blue tones from the brand palette:
 
 | Type | Background | Border | Text |
 |---|---|---|---|
@@ -495,6 +514,14 @@ Edit the `PRIORITY_PAGES` array:
 
 Edit the `EXAMPLE_PROMPTS` array. These should reflect the queries staff most commonly use. Review the GA search data periodically to inform this.
 
+### Adjusting relevance scoring
+
+The `scorePages` function controls which pages are sent to Claude. You can adjust:
+
+- **`topN`** (default: 20) — how many pages are sent per request. Increase for more context; decrease to reduce token usage further.
+- **Point values** — the weights assigned to title, tag, excerpt, and content matches. Increase title weight if title-based relevance is most important for your site.
+- **Fuzzy match threshold** — currently allows 1 character difference for words of 5+ characters. Increase for more aggressive typo tolerance.
+
 ### Changing the AI model
 
 The model is set in the `runSearch` function:
@@ -513,6 +540,7 @@ The `systemPrompt` string in `runSearch` controls how Claude interprets queries.
 - Minimum relevance score threshold (35)
 - Instruction to return valid JSON only
 - Instruction to note content gaps
+- When no pages scored, instruction to acknowledge this honestly rather than returning low-confidence results
 
 Edit this string to adjust any of these behaviours.
 
@@ -530,6 +558,15 @@ Edit the cron expression in `.github/workflows/crawl_site.yml`:
 
 Use [crontab.guru](https://crontab.guru) to generate alternative expressions.
 
+### Reusing this project for a different site
+
+The scoring logic (`getCorePages`, `scorePages`) contains no CADI-specific assumptions:
+
+- `getCorePages` detects homepage, contact, and about pages by URL pattern — no hardcoded IDs
+- `scorePages` works against any `search-index.json` produced by the crawler
+
+To reuse for another UoP department: update `PROXY_URL`, `GITHUB_RAW_INDEX_URL`, `FALLBACK_INDEX`, `EXAMPLE_PROMPTS`, the abbreviation expansion list in `systemPrompt`, and any CADI-specific priority pages or external tool links.
+
 ---
 
 ## 12. Troubleshooting
@@ -545,6 +582,17 @@ The Cloudflare Worker is returning an error. Check:
 2. The `ANTHROPIC_API_KEY` secret is set on the Worker
 3. The Anthropic API key is valid and has available credits in the [Anthropic Console](https://console.anthropic.com)
 4. Open browser DevTools → Network tab → look at the failed request for the raw error message from the API
+
+**Claude returns a message saying it could not find relevant results**
+
+When the local scoring step produces a `maxScore` of 0, Claude is instructed to be transparent about this rather than return unrelated results. This is expected behaviour for queries that are too vague, contain unusual terminology, or refer to content not yet in the index. Suggest the user tries a more specific query or triggers a fresh crawl if the content should exist on the site.
+
+**A relevant page is missing from results**
+
+The page may not have scored highly enough to appear in the top 20 sent to Claude. Check:
+1. Open `search-index.json` and confirm the page exists and has a meaningful `title`, `tags`, and `content` field
+2. If `content` is thin or contains navigation boilerplate, update `CONTENT_SELECTORS` or `NOISE_TAGS` in `crawl.py` and re-run the crawl
+3. Adding relevant terms to the page's `tags` in the index (by improving the crawler's tag extraction) will improve its score for related queries
 
 **Results seem stale or missing recently published pages**
 
