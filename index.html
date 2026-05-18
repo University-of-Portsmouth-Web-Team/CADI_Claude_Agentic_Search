@@ -204,6 +204,51 @@ function App() {
       .finally(() => setIndexing(false));
   }, []);
 
+  // Fuzzy-score pages against a query and return the top N most relevant.
+  // Handles misspellings, partial words, and multi-word tags without any
+  // hardcoded page IDs — safe to reuse across any site index.
+  const scorePages = useCallback((index, query, topN = 20) => {
+    if (!query || index.length <= topN) return index.slice(0, topN);
+
+    const words = query.toLowerCase().trim().split(/\s+/).filter(w => w.length > 1);
+    if (words.length === 0) return index.slice(0, topN);
+
+    function fuzzyMatch(a, b) {
+      if (a.includes(b) || b.includes(a)) return true;
+      if (a.length >= 5 && b.length >= 5 && Math.abs(a.length - b.length) <= 2) {
+        const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
+        let diff = 0;
+        for (let i = 0; i < shorter.length; i++) {
+          if (shorter[i] !== longer[i]) diff++;
+          if (diff > 1) return false;
+        }
+        return true;
+      }
+      return false;
+    }
+
+    const scored = index.map(page => {
+      const titleWords   = page.title.toLowerCase().split(/\s+/);
+      const tagStr       = (page.tags || []).join(" ").toLowerCase();
+      const tagWords     = tagStr.split(/\s+/);
+      const excerptWords = (page.excerpt || "").toLowerCase().split(/\s+/);
+      const contentWords = (page.content || "").toLowerCase().slice(0, 600).split(/\s+/);
+
+      let score = 0;
+      for (const qw of words) {
+        if (titleWords.some(tw => fuzzyMatch(tw, qw)))   score += 10;
+        if (tagWords.some(tw => fuzzyMatch(tw, qw)))     score += 8;
+        if (tagStr.includes(qw))                         score += 5;
+        if (excerptWords.some(tw => fuzzyMatch(tw, qw))) score += 4;
+        if (contentWords.some(tw => fuzzyMatch(tw, qw))) score += 2;
+      }
+      return { page, score };
+    });
+
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, topN).map(s => s.page);
+  }, []);
+
   const runSearch = useCallback(async (q) => {
     const trimmed = q.trim();
     if (!trimmed || loading) return;
@@ -249,7 +294,7 @@ Respond ONLY with valid JSON — no preamble, no markdown fences:
           messages: [{
             role: "user",
             content: `Search query: "${trimmed}"\n\nContent index:\n${JSON.stringify(
-              pageIndex.map(p => ({
+              scorePages(pageIndex, trimmed).map(p => ({
                 id: p.id, title: p.title, excerpt: p.excerpt,
                 content: (p.content || "").slice(0, 400),
                 type: p.type, tags: p.tags, date: p.date,
