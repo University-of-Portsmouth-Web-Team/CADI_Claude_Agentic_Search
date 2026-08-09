@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-02T05:15:24.739176+00:00",
+  "generated_at": "2026-08-09T03:26:09.200050+00:00",
   "source_url": "https://cadi.port.ac.uk",
   "total_pages": 295,
   "pages": [
@@ -8,7 +8,7 @@
       "url": "https://cadi.port.ac.uk",
       "title": "Centre for Academic and Digital Innovation | University of Portsmouth",
       "excerpt": "Learning and Teaching Conference 2026 View session recordings/slides Welcome to CADI – Teaching Excellence in Portsmouth The Centre for Academic and Digital Innovation (CADI) at the University of Portsmouth supports staff in delivering high-quality, innovative teaching. Our experts in digital learni…",
-      "content": "Learning and Teaching Conference 2026 View session recordings/slides Welcome to CADI – Teaching Excellence in Portsmouth The Centre for Academic and Digital Innovation (CADI) at the University of Portsmouth supports staff in delivering high-quality, innovative teaching. Our experts in digital learning, learning design and education technology work across the university to create engaging, consistent and future-ready learning experiences. Level up your teaching with our CPD workshops Our CPD workshops support and inspire staff across the University, with sessions on AI in education, assessment and feedback, closing awarding gaps, student engagement, curriculum design and more. Each interactive session provides practical tools, fresh ideas and opportunities to connect with colleagues. If you need assistance with booking a place on one of our CPD sessions then please contact the events team at cadi.port.ac.uk . Explore CPD and Support Browse the tabs to view upcoming sessions by month, or select CPD and Support above to see all session dates, outlines and learning objectives. Click on any session to open Docebo and reserve your place. Discover your Teaching Identity: Professional Values & Personal Pedagogies - 4th Aug AI in the Classroom: Foundations and First Steps - 4th Aug Padlet Essentials: Creating, Connecting and Collaborating - 4th Aug Harnessing AI: Enhance Teaching, Empower Learning - 5th Aug AI and Assessment - Academic Integrity and Innovation - 5th Aug From Outputs t",
+      "content": "Learning and Teaching Conference 2026 View session recordings/slides Welcome to CADI – Teaching Excellence in Portsmouth The Centre for Academic and Digital Innovation (CADI) at the University of Portsmouth supports staff in delivering high-quality, innovative teaching. Our experts in digital learning, learning design and education technology work across the university to create engaging, consistent and future-ready learning experiences. Level up your teaching with our CPD workshops Our CPD workshops support and inspire staff across the University, with sessions on AI in education, assessment and feedback, closing awarding gaps, student engagement, curriculum design and more. Each interactive session provides practical tools, fresh ideas and opportunities to connect with colleagues. If you need assistance with booking a place on one of our CPD sessions then please contact the events team at cadi.port.ac.uk . Explore CPD and Support Browse the tabs to view upcoming sessions by month, or select CPD and Support above to see all session dates, outlines and learning objectives. Click on any session to open Docebo and reserve your place. Introduction to Mentimeter - 12th Aug Mentimeter: an interactive tool to enhance engagement and interactive participation - 13th Aug Fair, Flexible and Feasible: Inclusive Approaches to Assessment - 13th Aug Feedback That Clicks: Empowering Students to Engage and Act - 26th Aug Padlet Essentials: Creating, Connecting and Collaborating - 1st Sept Di",
       "type": "page",
       "tags": [],
       "date": "",
@@ -1743,17 +1743,6 @@
     },
     {
       "id": 159,
-      "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-victor",
-      "title": "Meet Victor | University of Portsmouth",
-      "excerpt": "Victor Wong Digital Project Specialist (WISEflow) Victor has recently joined the CADI team as a Digital Project Specialist, who plays a pivotal role in the strategic oversight and execution of digital learning technology projects, with a particular emphasis on Moodle and the end-to-end assessment pl…",
-      "content": "Victor Wong Digital Project Specialist (WISEflow) Victor has recently joined the CADI team as a Digital Project Specialist, who plays a pivotal role in the strategic oversight and execution of digital learning technology projects, with a particular emphasis on Moodle and the end-to-end assessment platform (WISEflow). With more than ten years of experience in educational technologies and a proven track record of successfully managing and integrating digital learning and assessment systems, Victor's areas of expertise include instructional design, project management, and the seamless implementation of e-learning platforms and e-assessment in higher education, ensuring educators and students effectively leverage digital learning tools. Working in collaboration with course leaders and colleagues from the Academic Service team for many years has equipped Victor with a comprehensive understanding of the course structures, assessment regulations and needs. Victor is passionate about utilising technology to create inclusive and engaging educational experiences, and he constantly strives to be one step ahead of best practices and trends in the field.",
-      "type": "page",
-      "tags": [],
-      "date": "",
-      "description": ""
-    },
-    {
-      "id": 160,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-shaun",
       "title": "Meet Shaun | University of Portsmouth",
       "excerpt": "Shaun Searle Digital Team Leader Shaun is the Digital Team leader. He leads the team of Senior and Digital Learning Developers within Cadi-Digital to ensure the key priorities of the Digital Success Plan are implemented across the university. It is the central escalation point for all staff and stud…",
@@ -1764,7 +1753,7 @@
       "description": ""
     },
     {
-      "id": 161,
+      "id": 160,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-kevin",
       "title": "Meet Kevin | University of Portsmouth",
       "excerpt": "Kevin Ebuehi Senior Digital Learning Developer Kevin Ebuehi leads a team of Digital Learning Developers in the newly formed Centre for Academic and Digital Innovation (CADI). His team actively supports academics using Technology-Enhanced Learning (TEL) to deliver innovative, interactive, and effecti…",
@@ -1775,7 +1764,7 @@
       "description": ""
     },
     {
-      "id": 162,
+      "id": 161,
       "url": "https://cadi.port.ac.uk/meet-ian",
       "title": "Meet Ian | University of Portsmouth",
       "excerpt": "Ian Vaughan Senior Digital Learning Developer Ian is one of the team leads within the Digital Learning Developer team. After previously leading the Online Course Developer team for the Faculty of Humanities and Social Sciences, he brings with him the innovative and streamlined ways of working that e…",
@@ -1786,7 +1775,7 @@
       "description": ""
     },
     {
-      "id": 163,
+      "id": 162,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-richard",
       "title": "Meet Richard | University of Portsmouth",
       "excerpt": "Richard Talbot Senior Digital Learning Developer (TNE) Richard previously worked at the Faculty of Creative and Cultural Industries for 10 years as an Online Course Developer and more recently, as a Senior Learning Technologist. He has a wide range of experience providing digital solutions to enhanc…",
@@ -1797,7 +1786,7 @@
       "description": ""
     },
     {
-      "id": 164,
+      "id": 163,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-jonny",
       "title": "Meet Jonny | University of Portsmouth",
       "excerpt": "Jonny Bell Digital Learning Developer (Dental School) Jonny has been working at the University since 2010, starting out in the Faculty of Humanities, firstly in the School of Languages. One of the original members of the university’s expansion of Online Course Developers, (a cohort of around 15-20),…",
@@ -1808,7 +1797,7 @@
       "description": ""
     },
     {
-      "id": 165,
+      "id": 164,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-tetiana",
       "title": "Meet Tetiana | University of Portsmouth",
       "excerpt": "Tetiana Bohach Digital Learning Developer Tetiana joined the CADI team in spring 2026 as a Digital Learning Developer. Her background includes teaching and lesson design for English as a Second Language for teenagers and adults, as well as working as a Learning and Development Administrator/Assistan…",
@@ -1819,7 +1808,7 @@
       "description": ""
     },
     {
-      "id": 166,
+      "id": 165,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-michael-dobson",
       "title": "Meet Michael Dobson | University of Portsmouth",
       "excerpt": "Michael Dobson Digital Learning Developer Mike has worked at the University since 2019. He started as a Student Service Advisor in the Business and Law faculty and moved on to the Technology faculty as a Student & Academic Administrator. He is now part of the CADI team as a Digital Learning Develope…",
@@ -1830,7 +1819,7 @@
       "description": ""
     },
     {
-      "id": 167,
+      "id": 166,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-james",
       "title": "Meet James | University of Portsmouth",
       "excerpt": "James Hare Digital Learning Developer James has been with the University since 2015, working within the Faculty of Humanities and Social Sciences as an Online Course Developer. He comes from a background in educational publishing and journal production and has a BA (Hons) degree in History. He has w…",
@@ -1841,7 +1830,7 @@
       "description": ""
     },
     {
-      "id": 168,
+      "id": 167,
       "url": "https://cadi.port.ac.uk/meet-freddie",
       "title": "Meet Freddie | University of Portsmouth",
       "excerpt": "Freddie Hunt Digital Learning Developer Freddie is a versatile video editor and post-production specialist with a passion for audio-visual innovation and over a decade of experience in multimedia production. As a Digital Learning Developer at the University of Portsmouth, he produces and publishes h…",
@@ -1852,7 +1841,7 @@
       "description": ""
     },
     {
-      "id": 169,
+      "id": 168,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-teddy",
       "title": "Meet Teddy | University of Portsmouth",
       "excerpt": "Teddy Karailanova Digital Learning Developer Teddy first joined the University of Portsmouth in September 2019 as a Student with CCI, where she completed a Bachelor's and a Master's degree in Animation. The trajectory of her career plan changed when she started working in Primary Education in variou…",
@@ -1863,7 +1852,7 @@
       "description": ""
     },
     {
-      "id": 170,
+      "id": 169,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-abi",
       "title": "Meet Abi | University of Portsmouth",
       "excerpt": "Abigail Lee Digital Learning Developer - Medical School Abigail is a Digital Learning Developer for the Medical Education Programme in partnership with King’s College London. She is passionate about leveraging technology to enhance learning and teaching through innovative solutions and developing ac…",
@@ -1874,7 +1863,7 @@
       "description": ""
     },
     {
-      "id": 171,
+      "id": 170,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-will",
       "title": "Meet Will | University of Portsmouth",
       "excerpt": "Will Maltby Digital Learning Developer Will Maltby has been with the University of Portsmouth for over 13 years, working in the central digital learning team as a Digital Learning Developer to support and develop learning activities for staff and students. He specialises in web design coding and cre…",
@@ -1885,7 +1874,7 @@
       "description": ""
     },
     {
-      "id": 172,
+      "id": 171,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-sue",
       "title": "Meet Sue | University of Portsmouth",
       "excerpt": "Sue Moore Digital Learning Designer Sue began her career at the University in 2003 as a Course Administrator in Portsmouth Business School (now the Faculty of Business and Law), progressing through the roles of Senior Course Administrator, Deputy Postgraduate Centre Manager and then Assessments and…",
@@ -1896,7 +1885,7 @@
       "description": ""
     },
     {
-      "id": 173,
+      "id": 172,
       "url": "https://cadi.port.ac.uk/meet-georgia",
       "title": "Meet Georgia | University of Portsmouth",
       "excerpt": "Georgia Selby Digital Learning Developer Georgia joined the CADI team in the Summer of 2025 as a Digital Learning Developer. Georgia's background is in teaching where she taught Physical Education and RSHE at a local Secondary School. Georgia brings with her both knowledge and experience within teac…",
@@ -1907,7 +1896,7 @@
       "description": ""
     },
     {
-      "id": 174,
+      "id": 173,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-dimana",
       "title": "Meet Dimana | University of Portsmouth",
       "excerpt": "Meet Dimana Digital Learning Developer Dima joined University of Portsmouth in January 2024 as a Student and Academic Administrator for the Technology Faculty. In May 2025 she moved to CADI as a Digital Learning Developer where she is looking forward to supporting academics and students to gain conf…",
@@ -1918,7 +1907,7 @@
       "description": ""
     },
     {
-      "id": 175,
+      "id": 174,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-colin",
       "title": "Meet Colin | University of Portsmouth",
       "excerpt": "Colin Strain Digital Learning Designer Colin joined the University in 2017, having previously worked in the field of digital advertising, and has been part of projects for some major UK and international brands. He originally studied Games Computing at Lincoln, followed more recently by an MSc in Di…",
@@ -1929,7 +1918,7 @@
       "description": ""
     },
     {
-      "id": 176,
+      "id": 175,
       "url": "https://cadi.port.ac.uk/meet-mohammed",
       "title": "Meet Mohammed | University of Portsmouth",
       "excerpt": "Mohammed Tasnim Digital Learning Developer Mohammed is a Software Engineering graduate with a strong foundation in IT support and digital learning. He began his career as a First Line Support Consultant at Infinigate Cloud UK, a Microsoft Gold Partner, where he gained hands-on experience in technica…",
@@ -1940,7 +1929,7 @@
       "description": ""
     },
     {
-      "id": 177,
+      "id": 176,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-justin",
       "title": "Meet Justin | University of Portsmouth",
       "excerpt": "Justin Vaughan Digital Learning Developer Justin succeeds in his work by delivering pedagogic and technical solutions. He achieves this with clear verbal and written communication skills, which allows him to connect with subject experts on a daily basis. Justin's proactive approach drives innovation…",
@@ -1951,7 +1940,7 @@
       "description": ""
     },
     {
-      "id": 178,
+      "id": 177,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-keita",
       "title": "Meet Keita | University of Portsmouth",
       "excerpt": "Keita Vebere Digital Learning Developer Keita has been with the University of Portsmouth since joining as a student. In 2024, she began her career in Student Service Delivery as an IT Help Adviser, providing face-to-face technical support to students and, occasionally, staff across a range of issues…",
@@ -1962,11 +1951,22 @@
       "description": ""
     },
     {
-      "id": 179,
+      "id": 178,
       "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-scarlett",
       "title": "Meet Scarlett | University of Portsmouth",
       "excerpt": "Scarlett Wharram Digital Learning Developer Scarlett has worked at the University since 2023, working in both the Faculty of Creative and Cultural Industries and the Faculty of Technology as a Course Administrator. Working across both faculties has highlighted the diverse and differing needs across…",
       "content": "Scarlett Wharram Digital Learning Developer Scarlett has worked at the University since 2023, working in both the Faculty of Creative and Cultural Industries and the Faculty of Technology as a Course Administrator. Working across both faculties has highlighted the diverse and differing needs across the university for both staff and students. Scarlett's academic background is in Geography, completing a Master's at the University with a focus on wildfires. Outside of work, Scarlett likes to game and work on improving her art skills.",
+      "type": "page",
+      "tags": [],
+      "date": "",
+      "description": ""
+    },
+    {
+      "id": 179,
+      "url": "https://cadi.port.ac.uk/about-us/meet-cadi-team/meet-victor",
+      "title": "Meet Victor | University of Portsmouth",
+      "excerpt": "Victor Wong Digital Learning Developer Victor joined the CADI team on secondment as a Digital Project Specialist, who played a pivotal role in the strategic oversight and execution of digital learning technology projects, with a particular emphasis on Moodle and the end-to-end assessment platform (W…",
+      "content": "Victor Wong Digital Learning Developer Victor joined the CADI team on secondment as a Digital Project Specialist, who played a pivotal role in the strategic oversight and execution of digital learning technology projects, with a particular emphasis on Moodle and the end-to-end assessment platform (WISEflow). Victor has now returned to his original role as a Digital Learning Developer within the CADI Digital team. With more than ten years of experience in educational technologies and a proven track record of successfully managing and integrating digital learning and assessment systems, Victor's areas of expertise include instructional design, project management, and the seamless implementation of e-learning platforms and e-assessment in higher education, ensuring educators and students effectively leverage digital learning tools. Working in collaboration with course leaders and colleagues from the Academic Service team for many years has equipped Victor with a comprehensive understanding of the course structures, assessment regulations and needs. Victor is passionate about utilising technology to create inclusive and engaging educational experiences, and he constantly strives to be one step ahead of best practices and trends in the field.",
       "type": "page",
       "tags": [],
       "date": "",
@@ -2361,8 +2361,8 @@
       "id": 215,
       "url": "https://cadi.port.ac.uk/search?keys=&field_tags_target_id[]=236",
       "title": "Search | University of Portsmouth",
-      "excerpt": "CPD continuing professional development research staff engagement",
-      "content": "CPD continuing professional development research staff engagement",
+      "excerpt": "large file submission moodle assignments",
+      "content": "large file submission moodle assignments",
       "type": "page",
       "tags": [],
       "date": "",
@@ -2372,8 +2372,8 @@
       "id": 216,
       "url": "https://cadi.port.ac.uk/search?keys=&field_tags_target_id[]=241",
       "title": "Search | University of Portsmouth",
-      "excerpt": "CPD continuing professional development research staff engagement",
-      "content": "CPD continuing professional development research staff engagement",
+      "excerpt": "large file submission moodle assignments",
+      "content": "large file submission moodle assignments",
       "type": "page",
       "tags": [],
       "date": "",
@@ -2383,8 +2383,8 @@
       "id": 217,
       "url": "https://cadi.port.ac.uk/search?keys=&field_tags_target_id[]=246",
       "title": "Search | University of Portsmouth",
-      "excerpt": "CPD continuing professional development research staff engagement",
-      "content": "CPD continuing professional development research staff engagement",
+      "excerpt": "large file submission moodle assignments",
+      "content": "large file submission moodle assignments",
       "type": "page",
       "tags": [],
       "date": "",
@@ -2394,8 +2394,8 @@
       "id": 218,
       "url": "https://cadi.port.ac.uk/search?keys=&field_tags_target_id[]=251",
       "title": "Search | University of Portsmouth",
-      "excerpt": "CPD continuing professional development research staff engagement",
-      "content": "CPD continuing professional development research staff engagement",
+      "excerpt": "large file submission moodle assignments",
+      "content": "large file submission moodle assignments",
       "type": "page",
       "tags": [],
       "date": "",
@@ -2405,8 +2405,8 @@
       "id": 219,
       "url": "https://cadi.port.ac.uk/search?keys=&field_tags_target_id[]=261",
       "title": "Search | University of Portsmouth",
-      "excerpt": "CPD continuing professional development research staff engagement",
-      "content": "CPD continuing professional development research staff engagement",
+      "excerpt": "large file submission moodle assignments",
+      "content": "large file submission moodle assignments",
       "type": "page",
       "tags": [],
       "date": "",
@@ -2438,8 +2438,8 @@
       "id": 222,
       "url": "https://cadi.port.ac.uk/search?keys=&field_tags_target_id[]=41",
       "title": "Search | University of Portsmouth",
-      "excerpt": "video podcast",
-      "content": "video podcast",
+      "excerpt": "large file submission moodle assignments",
+      "content": "large file submission moodle assignments",
       "type": "page",
       "tags": [],
       "date": "",
@@ -2449,8 +2449,8 @@
       "id": 223,
       "url": "https://cadi.port.ac.uk/search?keys=&field_tags_target_id[]=196",
       "title": "Search | University of Portsmouth",
-      "excerpt": "video podcast",
-      "content": "video podcast",
+      "excerpt": "large file submission moodle assignments",
+      "content": "large file submission moodle assignments",
       "type": "page",
       "tags": [],
       "date": "",
@@ -2482,8 +2482,8 @@
       "id": 226,
       "url": "https://cadi.port.ac.uk/search?keys=&field_tags_target_id[]=476",
       "title": "Search | University of Portsmouth",
-      "excerpt": "video podcast",
-      "content": "video podcast",
+      "excerpt": "large file submission moodle assignments",
+      "content": "large file submission moodle assignments",
       "type": "page",
       "tags": [],
       "date": "",
@@ -2504,8 +2504,8 @@
       "id": 228,
       "url": "https://cadi.port.ac.uk/search?keys=&field_tags_target_id[]=336",
       "title": "Search | University of Portsmouth",
-      "excerpt": "video podcast",
-      "content": "video podcast",
+      "excerpt": "large file submission moodle assignments",
+      "content": "large file submission moodle assignments",
       "type": "page",
       "tags": [],
       "date": "",
@@ -2515,8 +2515,8 @@
       "id": 229,
       "url": "https://cadi.port.ac.uk/search?keys=&field_tags_target_id[]=341",
       "title": "Search | University of Portsmouth",
-      "excerpt": "video podcast",
-      "content": "video podcast",
+      "excerpt": "large file submission moodle assignments",
+      "content": "large file submission moodle assignments",
       "type": "page",
       "tags": [],
       "date": "",
@@ -2526,8 +2526,8 @@
       "id": 230,
       "url": "https://cadi.port.ac.uk/search?keys=&field_tags_target_id[]=346",
       "title": "Search | University of Portsmouth",
-      "excerpt": "video podcast",
-      "content": "video podcast",
+      "excerpt": "large file submission moodle assignments",
+      "content": "large file submission moodle assignments",
       "type": "page",
       "tags": [],
       "date": "",
@@ -2603,8 +2603,8 @@
       "id": 237,
       "url": "https://cadi.port.ac.uk/search?keys=&field_tags_target_id[]=446",
       "title": "Search | University of Portsmouth",
-      "excerpt": "video podcast",
-      "content": "video podcast",
+      "excerpt": "large file submission moodle assignments",
+      "content": "large file submission moodle assignments",
       "type": "page",
       "tags": [],
       "date": "",
@@ -2614,8 +2614,8 @@
       "id": 238,
       "url": "https://cadi.port.ac.uk/learning-and-teaching-conference-2026/conference-schedule/keynote-speaker-2026",
       "title": "Keynote Speaker 2026 | University of Portsmouth",
-      "excerpt": "Jumping off a Cliff ...and Bouncing Keynote Speaker Time: 9:35am to 10:35am | Location: Richmond LT1 | Presenter: Chris Powis - Director of Library Learning and Student Services View presentation (PDF, 3.2MB) Abstract: In 2018 the University of Northampton moved to a new location, the first complete…",
-      "content": "Jumping off a Cliff ...and Bouncing Keynote Speaker Time: 9:35am to 10:35am | Location: Richmond LT1 | Presenter: Chris Powis - Director of Library Learning and Student Services View presentation (PDF, 3.2MB) Abstract: In 2018 the University of Northampton moved to a new location, the first completely new campus in the UK since the 1960s. But it wasn’t just a move of postcode - virtually everything else changed at the same time. Our pedagogy, our teaching spaces, our offices and workspaces - you name it we changed it. This paper will consider the journey over the past eight years. What has been the impact on staff and students, how has it impacted our culture, our classroom practice, our assessment and how are we continuing to evolve in the face of AI, changing student populations and financial pressures? It was a long way down at the top of that cliff-face -did we bounce? Profile: Since winning his NTF, Chris is now Director of Library, Learning and Student Services at the University of Northampton with a brief covering the University Library, Student Services and central support for learning and teaching. The latter includes learning technology and our HEA accredited Fellowship schemes. He is also the university’s Teaching Excellence Awards Lead (TEAL) so is responsible for their NTF pipeline. Originally a librarian, his professional interests are in learning spaces and the role of professional services in learning and teaching. At the time of winning his National Teaching ",
+      "excerpt": "Jumping off a Cliff ...and Bouncing Keynote Speaker Time: 9:35am to 10:35am | Location: Richmond LT1 | Presenter: Chris Powis - Director of Library Learning and Student Services Abstract: In 2018 the University of Northampton moved to a new location, the first completely new campus in the UK since t…",
+      "content": "Jumping off a Cliff ...and Bouncing Keynote Speaker Time: 9:35am to 10:35am | Location: Richmond LT1 | Presenter: Chris Powis - Director of Library Learning and Student Services Abstract: In 2018 the University of Northampton moved to a new location, the first completely new campus in the UK since the 1960s. But it wasn’t just a move of postcode - virtually everything else changed at the same time. Our pedagogy, our teaching spaces, our offices and workspaces - you name it we changed it. This paper will consider the journey over the past eight years. What has been the impact on staff and students, how has it impacted our culture, our classroom practice, our assessment and how are we continuing to evolve in the face of AI, changing student populations and financial pressures? It was a long way down at the top of that cliff-face -did we bounce? Profile: Since winning his NTF, Chris is now Director of Library, Learning and Student Services at the University of Northampton with a brief covering the University Library, Student Services and central support for learning and teaching. The latter includes learning technology and our HEA accredited Fellowship schemes. He is also the university’s Teaching Excellence Awards Lead (TEAL) so is responsible for their NTF pipeline. Originally a librarian, his professional interests are in learning spaces and the role of professional services in learning and teaching. At the time of winning his National Teaching Fellowship in 2004, Chris was D",
       "type": "page",
       "tags": [],
       "date": "",
